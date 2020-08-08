@@ -149,7 +149,12 @@ async function create_dataset(name) {
     });
     if (response.ok) {
         result = await response.json();
-       create_metadata('Dataset', name);
+        if (!result.data) {
+            $("#nameError").html(result.errors[0].message);
+        } else {
+            create_metadata('Dataset', name);
+        }
+
     } else {
         console.log(response.statusText);
     }
