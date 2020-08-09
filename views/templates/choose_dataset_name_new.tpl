@@ -1,5 +1,5 @@
 <div id="welcome">
-    <form id="upload_form">
+    <form id="upload_form" method="get" action="{$home_path}index.php">
         <label>Step 3: Create new dataset</label>
         <input type="text" id="ds_name" name="ds" size="40"  placeholder="Only lowercase, digits and underscores allowed">
         <div id="nameError" class="errorMsg"></div>

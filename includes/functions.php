@@ -42,3 +42,18 @@ function select_dataset($hsid, $repo, $actiontype) {
     }
     $smarty->view('page');
 }
+
+function upload_form($hsid, $repo, $actiontype, $ds) {
+    global $smarty;
+
+    $parts = explode("__", $ds);
+    array_shift($parts);
+    $smarty->assign('ds_name', implode("__", $parts));
+    $smarty->assign('logged_in', true);
+    $smarty->assign('hsid', $hsid);
+    $smarty->assign('repo', $repo);
+    $smarty->assign('actiontype', $actiontype);
+    $smarty->assign('ds', $ds);
+    $smarty->assign('content', $smarty->view2var('load_file'));
+    $smarty->view('page');
+}

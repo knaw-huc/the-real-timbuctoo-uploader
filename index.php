@@ -10,7 +10,12 @@ if (isset($_GET["hsid"]))
     if (isset($_GET["repo"]))
     {
         if (isset($_GET["actiontype"])) {
-            select_dataset($_GET["hsid"], $_GET["repo"], $_GET["actiontype"]);
+            if (isset($_GET["ds"])) {
+                upload_form($_GET["hsid"], $_GET["repo"], $_GET["actiontype"], $_GET["ds"]);
+            } else {
+                select_dataset($_GET["hsid"], $_GET["repo"], $_GET["actiontype"]);
+            }
+
         } else {
             choose_type($_GET["hsid"], $_GET["repo"]);
         }

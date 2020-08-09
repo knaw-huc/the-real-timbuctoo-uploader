@@ -97,9 +97,10 @@ font-size: 14px;
 
 #uploadMetadata{
 position: absolute;
+display: block;
 top: 176px;
 left: 24px;
-width: 200px;
+width: 250px;
 background-color: #ddd;
 border: 1px solid #000000;
 border-radius: 4px;

@@ -17,9 +17,14 @@ function init() {
     }
     if ($("#actiontype").length) {
         create_metadata( 'Action', selectAction($("#actiontype").val()));
-        if ($("#actiontype").val() === "existing") {
-            get_dataset_names();
+        if (!$("#ds").length) {
+            if ($("#actiontype").val() === "existing") {
+                get_dataset_names();
+            }
+        } else {
+            create_metadata("Dataset", $("#ds_name").val());
         }
+
     }
 }
 
@@ -146,7 +151,7 @@ async function timbuctoo_requests(url, query, hsid) {
             var option = document.createElement('option');
                 $(option).attr("value", result.data.aboutMe.dataSetMetadataList[key].dataSetId);
                  $(option).html(result.data.aboutMe.dataSetMetadataList[key].dataSetName);
-            $("#ds").append(option);
+            $("#ds_select").append(option);
         }
     } else {
         console.log(response.statusText);
