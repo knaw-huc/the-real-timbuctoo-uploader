@@ -17,6 +17,9 @@ function init() {
     }
     if ($("#actiontype").length) {
         create_metadata( 'Action', selectAction($("#actiontype").val()));
+        if ($("#actiontype").val() === "existing") {
+            get_dataset_names();
+        }
     }
 }
 
@@ -101,6 +104,13 @@ function correctExpression(name) {
     return re.test(name);
 }
 
+function get_dataset_names() {
+    url = resources[$("#repo").val()].url;
+    hsid = $("#hsid").val();
+    query = "query {aboutMe {id name dataSetMetadataList(ownOnly: false, permission: WRITE) {uri dataSetId dataSetName}}}";
+    timbuctoo_requests(url, query, hsid);
+}
+
 async function whoAmI(hsid) {
     let response = await fetch(resources[$("#repo").val()].url, {
         method: "POST",
@@ -122,7 +132,7 @@ async function whoAmI(hsid) {
 async function timbuctoo_requests(url, query, hsid) {
     let response = await fetch(url, {
         method: "POST",
-        body: JSON.stringify(query),
+        body: JSON.stringify({"query": query}),
         headers: {
             authorization:  hsid,
             'Content-Type': 'application/json'
@@ -130,7 +140,14 @@ async function timbuctoo_requests(url, query, hsid) {
     });
     if (response.ok) {
         result = await response.json();
-        return result
+        console.log(result);
+        for (var key in result.data.aboutMe.dataSetMetadataList) {
+            console.log(key);
+            var option = document.createElement('option');
+                $(option).attr("value", result.data.aboutMe.dataSetMetadataList[key].dataSetId);
+                 $(option).html(result.data.aboutMe.dataSetMetadataList[key].dataSetName);
+            $("#ds").append(option);
+        }
     } else {
         console.log(response.statusText);
     }
