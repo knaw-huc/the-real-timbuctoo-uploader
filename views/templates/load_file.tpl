@@ -15,6 +15,9 @@
         <div id="uploadProgress">
             <p>Transferring file(s) to Timbuctoo server...</p>
             <img src="img/spinner.gif">
+            <div id="uploadError" class="errorMsg">
+
+            </div>
         </div>
     </div>
 </div>

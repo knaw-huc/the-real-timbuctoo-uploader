@@ -1,9 +1,9 @@
 const login_server = 'https://secure.huygens.knaw.nl/saml2/login';
 const home = "http://www.huc.localhost/timbuctoo_uploader/";
 const resources = {
-    loc: {url: "http://localhost:8080/v5/graphql", name: "Local Timbuctoo"},
-    tim: {url: "http://localhost:8080/v5/graphql", name: "Huygens Timbuctoo"},
-    gol: {url: "http://localhost:8080/v5/graphql", name: "Golden Agents"}
+    loc: {url: "http://localhost:8080/v5/", name: "Local Timbuctoo"},
+    tim: {url: "http://localhost:8080/v5/", name: "Huygens Timbuctoo"},
+    gol: {url: "http://localhost:8080/v5/", name: "Golden Agents"}
 }
 
 const mimeTypes = {
@@ -51,6 +51,7 @@ function resetFileUploadError() {
 }
 
 function validateFiles() {
+    const owner_id = $("#ds").val().split('_').slice(-3)[0];
     const files = $("#uploadfiles")[0].files;
     if (files.length === 0) {
         $("#fileError").html("No files selected!");
@@ -66,10 +67,12 @@ function validateFiles() {
                     create_metadata('Rejected file', files[i].name);
                 }
             } else {
-                send_file(files[i]);
+                send_file(files[i], owner_id, $("#ds_name").val());
             }
         }
+        $("#uploadStatus").addClass("noView");
     }
+
 }
 
 function create_upload_status_element() {
@@ -77,9 +80,56 @@ function create_upload_status_element() {
     $("#uploadStatus").removeClass("noView");
 }
 
-function send_file(file) {
-    console.log(file);
+async function send_file(file, owner_id, datasetName) {
+    const mimeType = getMimeType(file);
+    const url =  resources[$("#repo").val()].url + owner_id + "/" + datasetName + "/upload/rdf";
+    const hsid = $("#hsid").val();
+    const data = new FormData();
+
+    data.append('file', file);
+    data.append('fileMimeTypeOverride', mimeType);
+    data.append('encoding', 'UTF-8');
+
+    const response = await fetch(url, {
+        method: 'POST',
+        body: data,
+        headers: {
+            authorization: hsid
+        }
+    });
+
+    if (response.ok) {
+        create_metadata('Uploaded', file.name);
+    } else {
+        const paragragh = document.createElement("p");
+        paragraph.html(response.statusText);
+        $("#uploadError").append(paragraph);
+    }
+
+
+
+
+
+
+
+
 }
+
+function getMimeType(file) {
+    let ext = file.name.split('.').slice(-1)[0];
+
+    if (ext === 'gz') {
+        ext = file.name.split('.').slice(-2)[0];
+    }
+
+    for (var key in mimeTypes) {
+        if (ext === key) {
+            return mimeTypes[key];
+        }
+    }
+    return "";
+}
+
 
 function selectAction(status) {
     if (status === 'new') {
@@ -152,7 +202,6 @@ function validateName() {
         }
     }
     if (!error) {
-        //window.location = home + "?hsid=" + $("#hsid").val() + "&repo=" + $("#repo").val() + "&actiontype=new&ds=" + $("#ds_name").val();
         create_dataset($("#ds_name").val());
     }
 }
@@ -163,14 +212,14 @@ function correctExpression(name) {
 }
 
 function get_dataset_names() {
-    url = resources[$("#repo").val()].url;
+    url = resources[$("#repo").val()].url + "graphql";
     hsid = $("#hsid").val();
     query = "query {aboutMe {id name dataSetMetadataList(ownOnly: false, permission: WRITE) {uri dataSetId dataSetName}}}";
     timbuctoo_requests(url, query, hsid);
 }
 
 async function whoAmI(hsid) {
-    let response = await fetch(resources[$("#repo").val()].url, {
+    let response = await fetch(resources[$("#repo").val()].url + "graphql", {
         method: "POST",
         body: JSON.stringify({"query": "{aboutMe {id name}}"}),
         headers: {
@@ -214,7 +263,7 @@ async function timbuctoo_requests(url, query, hsid) {
 async function create_dataset(name) {
     const query = "mutation {createDataSet(dataSetName: \"" + name + "\") {dataSetId dataSetName ownerId}}";
     console.log(JSON.stringify({"query": query}));
-    let response = await fetch(resources[$("#repo").val()].url, {
+    let response = await fetch(resources[$("#repo").val()].url + "graphql", {
         method: "POST",
         body: JSON.stringify({"query": query}),
         headers: {
@@ -224,13 +273,15 @@ async function create_dataset(name) {
     });
     if (response.ok) {
         result = await response.json();
+        console.log(result);
         if (!result.data) {
             $("#nameError").html(result.errors[0].message);
         } else {
             create_metadata('Dataset', name);
+            window.location = home + "?hsid=" + $("#hsid").val() + "&repo=" + $("#repo").val() + "&actiontype=new&ds=" + result.data.createDataSet.dataSetId;
         }
 
     } else {
-        console.log(response.statusText);
+        $("#nameError").html(response.statusText);
     }
 }
