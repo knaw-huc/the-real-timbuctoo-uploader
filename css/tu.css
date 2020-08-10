@@ -120,5 +120,11 @@ margin-bottom: 0;
 }
 
 .noView {
-display: none;
+display: none !important;
+}
+
+#hint {
+margin-top:8px;
+font-size: 12px;
+color: #999999;
 }

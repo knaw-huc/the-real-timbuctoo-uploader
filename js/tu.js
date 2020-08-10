@@ -5,6 +5,15 @@ const resources = {
     tim: {url: "http://localhost:8080/v5/graphql", name: "Huygens Timbuctoo"},
     gol: {url: "http://localhost:8080/v5/graphql", name: "Golden Agents"}
 }
+
+const mimeTypes = {
+    ttl: 'text/turtle',
+    trig: 'application/trig',
+    nt: 'application/n-triples',
+    nq: 'application/n-quads',
+    n3: 'text/n3',
+    xml: 'application/rdf+xml'
+}
 let user_id = '';
 let user_name = '';
 
@@ -12,11 +21,11 @@ function init() {
     //$("#login").html("Logged in");
     $("#uploadMetadata").removeClass("noView");
     if ($("#repo").length) {
-        create_metadata( 'Repository', resources[$("#repo").val()].name);
+        create_metadata('Repository', resources[$("#repo").val()].name);
         whoAmI($("#hsid").val());
     }
     if ($("#actiontype").length) {
-        create_metadata( 'Action', selectAction($("#actiontype").val()));
+        create_metadata('Action', selectAction($("#actiontype").val()));
         if (!$("#ds").length) {
             if ($("#actiontype").val() === "existing") {
                 get_dataset_names();
@@ -26,6 +35,50 @@ function init() {
         }
 
     }
+}
+
+function correct_mimetype(ext) {
+    for (var key in mimeTypes) {
+        if (key === ext) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function resetFileUploadError() {
+    $("#fileError").html("");
+}
+
+function validateFiles() {
+    const files = $("#uploadfiles")[0].files;
+    if (files.length === 0) {
+        $("#fileError").html("No files selected!");
+    } else {
+        create_upload_status_element();
+        for (var i = 0; i < files.length; i++) {
+            const extension = files[i].name.split('.').slice(-1)[0];
+            if (extension === 'gz') {
+                fileType = files[i].name.split('.').slice(-2)[0];
+                if (correct_mimetype(fileType)) {
+                    send_file(files[i]);
+                } else {
+                    create_metadata('Rejected file', files[i].name);
+                }
+            } else {
+                send_file(files[i]);
+            }
+        }
+    }
+}
+
+function create_upload_status_element() {
+    $("#upload_form").addClass("noView");
+    $("#uploadStatus").removeClass("noView");
+}
+
+function send_file(file) {
+    console.log(file);
 }
 
 function selectAction(status) {
@@ -50,7 +103,7 @@ function login() {
     document.getElementById('loginForm').submit();
 }
 
-function create_metadata( label, value) {
+function create_metadata(label, value) {
     var row = document.createElement('div');
     $(row).attr("class", 'mdRow');
     var line = document.createElement('div');
@@ -119,9 +172,9 @@ function get_dataset_names() {
 async function whoAmI(hsid) {
     let response = await fetch(resources[$("#repo").val()].url, {
         method: "POST",
-        body: JSON.stringify( {"query": "{aboutMe {id name}}"}),
+        body: JSON.stringify({"query": "{aboutMe {id name}}"}),
         headers: {
-            authorization:  hsid,
+            authorization: hsid,
             'Content-Type': 'application/json'
         }
     });
@@ -139,7 +192,7 @@ async function timbuctoo_requests(url, query, hsid) {
         method: "POST",
         body: JSON.stringify({"query": query}),
         headers: {
-            authorization:  hsid,
+            authorization: hsid,
             'Content-Type': 'application/json'
         }
     });
@@ -149,8 +202,8 @@ async function timbuctoo_requests(url, query, hsid) {
         for (var key in result.data.aboutMe.dataSetMetadataList) {
             console.log(key);
             var option = document.createElement('option');
-                $(option).attr("value", result.data.aboutMe.dataSetMetadataList[key].dataSetId);
-                 $(option).html(result.data.aboutMe.dataSetMetadataList[key].dataSetName);
+            $(option).attr("value", result.data.aboutMe.dataSetMetadataList[key].dataSetId);
+            $(option).html(result.data.aboutMe.dataSetMetadataList[key].dataSetName);
             $("#ds_select").append(option);
         }
     } else {
@@ -159,13 +212,13 @@ async function timbuctoo_requests(url, query, hsid) {
 }
 
 async function create_dataset(name) {
-    const query = "mutation {createDataSet(dataSetName: \""  + name + "\") {dataSetId dataSetName ownerId}}";
+    const query = "mutation {createDataSet(dataSetName: \"" + name + "\") {dataSetId dataSetName ownerId}}";
     console.log(JSON.stringify({"query": query}));
     let response = await fetch(resources[$("#repo").val()].url, {
         method: "POST",
         body: JSON.stringify({"query": query}),
         headers: {
-            authorization:  hsid,
+            authorization: hsid,
             'Content-Type': 'application/json'
         }
     });
