@@ -47,8 +47,9 @@ function upload_form($hsid, $repo, $actiontype, $ds) {
     global $smarty;
 
     $parts = explode("__", $ds);
-    array_shift($parts);
+    $owner_id = array_shift($parts);
     $smarty->assign('ds_name', implode("__", $parts));
+    $smarty->assign('owner_id', $owner_id);
     $smarty->assign('logged_in', true);
     $smarty->assign('hsid', $hsid);
     $smarty->assign('repo', $repo);

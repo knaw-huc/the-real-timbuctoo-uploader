@@ -16,6 +16,8 @@ const mimeTypes = {
 }
 let user_id = '';
 let user_name = '';
+let acceptedFiles = 0;
+let startStatusIndex = 0;
 
 function init() {
     //$("#login").html("Logged in");
@@ -51,28 +53,78 @@ function resetFileUploadError() {
 }
 
 function validateFiles() {
-    const owner_id = $("#ds").val().split('_').slice(-3)[0];
+    const owner_id = $("#owner_id").val();
     const files = $("#uploadfiles")[0].files;
     if (files.length === 0) {
         $("#fileError").html("No files selected!");
     } else {
         create_upload_status_element();
-        for (var i = 0; i < files.length; i++) {
+        startSending(owner_id, files);
+
+    }
+
+}
+
+async function startSending(owner_id, files) {
+    const url = resources[$("#repo").val()].url + "graphql";
+    const dataset = $("#ds").val();
+    query = "query {dataSetMetadata(dataSetId: \"" + dataset + "\") {dataSetImportStatus {id status source progress {label status progress} errorObjects {dateStamp file method message error}}}}";
+    let response = await fetch(url, {
+        method: "POST",
+        body: JSON.stringify({"query": query}),
+        headers: {
+            authorization: hsid,
+            'Content-Type': 'application/json'
+        }
+    });
+
+    if (response.ok) {
+        let json = await response.json();
+        makePreparationsAndSend(json, owner_id, files);
+    } else {
+        alert("HTTP-Error: " + response.status);
+    }
+}
+
+function makePreparationsAndSend(json, owner_id, files) {
+    startStatusIndex = json.data.dataSetMetadata.dataSetImportStatus.length;
+    for (var i = 0; i < files.length; i++) {
             const extension = files[i].name.split('.').slice(-1)[0];
             if (extension === 'gz') {
                 fileType = files[i].name.split('.').slice(-2)[0];
                 if (correct_mimetype(fileType)) {
-                    send_file(files[i]);
+                    createFileStatusLine(files[i]);
+                    send_file(files[i], owner_id, $("#ds_name").val());
                 } else {
                     create_metadata('Rejected file', files[i].name);
                 }
             } else {
+                createFileStatusLine(files[i]);
                 send_file(files[i], owner_id, $("#ds_name").val());
             }
         }
-        $("#uploadStatus").addClass("noView");
-    }
+        check_process();
+}
 
+async function check_process() {
+    const url = resources[$("#repo").val()].url + "graphql";
+    const dataset = $("#ds").val();
+    query = "query {dataSetMetadata(dataSetId: \"" + dataset + "\") {dataSetImportStatus {id status source progress {label status progress} errorObjects {dateStamp file method message error}}}}";
+    let response = await fetch(url, {
+        method: "POST",
+        body: JSON.stringify({"query": query}),
+        headers: {
+            authorization: hsid,
+            'Content-Type': 'application/json'
+        }
+    });
+
+    if (response.ok) {
+        let json = await response.json();
+        editStatus(json);
+    } else {
+        alert("HTTP-Error: " + response.status);
+    }
 }
 
 function create_upload_status_element() {
@@ -80,15 +132,60 @@ function create_upload_status_element() {
     $("#uploadStatus").removeClass("noView");
 }
 
+function editStatus(json) {
+    let allExist = true;
+    let status = 'DONE';
+    for (var i = startStatusIndex; i < startStatusIndex + acceptedFiles; i++) {
+        if (json.data.dataSetMetadata.dataSetImportStatus[i] !== undefined) {
+            $("#" + json.data.dataSetMetadata.dataSetImportStatus[i].source.substring(37)).html(json.data.dataSetMetadata.dataSetImportStatus[i].status);
+            if (json.data.dataSetMetadata.dataSetImportStatus[i].status !== 'DONE') {
+                status = json.data.dataSetMetadata.dataSetImportStatus[i].status;
+            } else {
+                
+            }
+        } else {
+            allExist = false;
+        }
+    }
+
+    if (allExist && status === 'DONE') {
+        $("#importHeader").html("Import completed");
+        $("#spinner").remove();
+    } else {
+        setTimeout(check_process, 5000);
+    }
+
+}
+
+function createFileStatusLine(file) {
+    const codedFileName = file.name.split('.').join('_');
+    const line = document.createElement('div');
+    $(line).addClass("fileStatus");
+    let cell = document.createElement('div');
+    $(cell).addClass("fileStatusName");
+    $(cell).html(file.name + ":");
+    $(line).append(cell);
+    cell = document.createElement('div');
+    $(cell).addClass("progess");
+    $(cell).attr("id", codedFileName);
+    $(cell).html("UPLOADING");
+    $(line).append(cell);
+    $("#fileStatus").append(line);
+
+}
+
 async function send_file(file, owner_id, datasetName) {
     const mimeType = getMimeType(file);
-    const url =  resources[$("#repo").val()].url + owner_id + "/" + datasetName + "/upload/rdf";
+    const url = resources[$("#repo").val()].url + owner_id + "/" + datasetName + "/upload/rdf";
     const hsid = $("#hsid").val();
     const data = new FormData();
+    acceptedFiles++;
 
     data.append('file', file);
     data.append('fileMimeTypeOverride', mimeType);
     data.append('encoding', 'UTF-8');
+
+    $("#uploadStatus").removeClass("noView");
 
     const response = await fetch(url, {
         method: 'POST',
@@ -100,19 +197,13 @@ async function send_file(file, owner_id, datasetName) {
 
     if (response.ok) {
         create_metadata('Uploaded', file.name);
-    } else {
+        //$("#uploadStatus").addClass("noView");
+    }
+    /*else {
         const paragragh = document.createElement("p");
         paragraph.html(response.statusText);
         $("#uploadError").append(paragraph);
-    }
-
-
-
-
-
-
-
-
+    }*/
 }
 
 function getMimeType(file) {
@@ -247,9 +338,7 @@ async function timbuctoo_requests(url, query, hsid) {
     });
     if (response.ok) {
         result = await response.json();
-        console.log(result);
         for (var key in result.data.aboutMe.dataSetMetadataList) {
-            console.log(key);
             var option = document.createElement('option');
             $(option).attr("value", result.data.aboutMe.dataSetMetadataList[key].dataSetId);
             $(option).html(result.data.aboutMe.dataSetMetadataList[key].dataSetName);

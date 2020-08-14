@@ -10,11 +10,13 @@
         <input type="hidden" id="actiontype" name="actiontype" value="{$actiontype}">
         <input type="hidden" id="ds" name="ds" value="{$ds}">
         <input type="hidden" id="ds_name" name="ds_name" value="{$ds_name}">
+        <input type="hidden" id="owner_id" value="{$owner_id}">
     </form>
     <div id="uploadStatus" class="noView">
         <div id="uploadProgress">
-            <p>Transferring file(s) to Timbuctoo server...</p>
-            <img src="img/spinner.gif">
+            <p id="importHeader">Importing file(s) into Timbuctoo...</p>
+            <img id="spinner" src="img/spinner.gif"><br/>
+            <div id="fileStatus"></div>
             <div id="uploadError" class="errorMsg">
 
             </div>
