@@ -1,9 +1,9 @@
 const login_server = 'https://secure.huygens.knaw.nl/saml2/login';
-const home = "http://www.huc.localhost/timbuctoo_uploader/";
+const home = "https://www.huc.localhost/timbuctoo_uploader/";
 const resources = {
     loc: {url: "http://localhost:8080/v5/", name: "Local Timbuctoo"},
-    tim: {url: "http://localhost:8080/v5/", name: "Huygens Timbuctoo"},
-    gol: {url: "http://localhost:8080/v5/", name: "Golden Agents"}
+    tim: {url: "https://repository.huygens.knaw.nl/v5/", name: "Huygens Timbuctoo"},
+    gol: {url: "https://repository.goldenagents.org/v5/", name: "Golden Agents"}
 }
 
 const mimeTypes = {
@@ -21,8 +21,8 @@ let startStatusIndex = 0;
 
 function init() {
     //$("#login").html("Logged in");
-    $("#uploadMetadata").removeClass("noView");
     if ($("#repo").length) {
+        $("#uploadMetadata").removeClass("noView");
         create_metadata('Repository', resources[$("#repo").val()].name);
         whoAmI($("#hsid").val());
     }
@@ -141,7 +141,11 @@ function editStatus(json) {
             if (json.data.dataSetMetadata.dataSetImportStatus[i].status !== 'DONE') {
                 status = json.data.dataSetMetadata.dataSetImportStatus[i].status;
             } else {
-                
+                if (json.data.dataSetMetadata.dataSetImportStatus[i].errorObjects.length) {
+                    $("#" + json.data.dataSetMetadata.dataSetImportStatus[i].source.substring(37)).html("ERROR! (File not imported)");
+                    const errorMsg = json.data.dataSetMetadata.dataSetImportStatus[i].errorObjects[0].error.split("\n").join("<br/>");
+                    $("#" + json.data.dataSetMetadata.dataSetImportStatus[i].source.substring(37) + "_error").html(errorMsg);
+                }
             }
         } else {
             allExist = false;
@@ -159,7 +163,7 @@ function editStatus(json) {
 
 function createFileStatusLine(file) {
     const codedFileName = file.name.split('.').join('_');
-    const line = document.createElement('div');
+    let line = document.createElement('div');
     $(line).addClass("fileStatus");
     let cell = document.createElement('div');
     $(cell).addClass("fileStatusName");
@@ -170,6 +174,10 @@ function createFileStatusLine(file) {
     $(cell).attr("id", codedFileName);
     $(cell).html("UPLOADING");
     $(line).append(cell);
+    $("#fileStatus").append(line);
+    line = document.createElement('div');
+    $(line).addClass("fileStatusError");
+    $(line).attr("id", codedFileName + "_error");
     $("#fileStatus").append(line);
 
 }
@@ -199,11 +207,11 @@ async function send_file(file, owner_id, datasetName) {
         create_metadata('Uploaded', file.name);
         //$("#uploadStatus").addClass("noView");
     }
-    /*else {
+    else {
         const paragragh = document.createElement("p");
         paragraph.html(response.statusText);
         $("#uploadError").append(paragraph);
-    }*/
+    }
 }
 
 function getMimeType(file) {

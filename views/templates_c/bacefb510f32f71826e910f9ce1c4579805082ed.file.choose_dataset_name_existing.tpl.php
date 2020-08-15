@@ -1,4 +1,4 @@
-<?php /* Smarty version Smarty-3.1.14, created on 2020-08-09 22:29:30
+<?php /* Smarty version Smarty-3.1.14, created on 2020-08-15 13:57:07
          compiled from "/Library/WebServer/Documents/timbuctoo_uploader/views/templates/choose_dataset_name_existing.tpl" */ ?>
 <?php /*%%SmartyHeaderCode:13719205125f29b4066b7a47-53613176%%*/if(!defined('SMARTY_DIR')) exit('no direct access allowed');
 $_valid = $_smarty_tpl->decodeProperties(array (
@@ -7,7 +7,7 @@ $_valid = $_smarty_tpl->decodeProperties(array (
     'bacefb510f32f71826e910f9ce1c4579805082ed' => 
     array (
       0 => '/Library/WebServer/Documents/timbuctoo_uploader/views/templates/choose_dataset_name_existing.tpl',
-      1 => 1597004966,
+      1 => 1597414532,
       2 => 'file',
     ),
   ),
@@ -34,6 +34,7 @@ index.php">
 
         </select>
 <br/>
+        <input type="button" value="Back" onclick="history.back()">&nbsp;
         <input id="submitBtn" type="submit" value="Next">
         <input type="hidden" id="hsid" name="hsid" value="<?php echo $_smarty_tpl->tpl_vars['hsid']->value;?>
 ">

@@ -15,17 +15,14 @@
     {/if}
 </head>
 <body>
-<div id="header"><img id="logo" alt="logo huygens ING" src="{$home_path}img/huygens.png">
+<div id="header"><a href="{$home_path}"><img id="logo" alt="logo huygens ING" src="{$home_path}img/huygens.png"></a>
 <div id="login">{if !$logged_in}<div id="loginBtn" onclick="login()">Login</div>{/if}</div>
 </div>
 <div id="content">
     {$content}
 </div>
 <div id="uploadMetadata" class="noView">
-    <div class="mdRow">
-        <div class="mdLabel">Status</div>
-        <div class="mdValue">Logged in</div>
-    </div>
+
 </div>
 </div>
 <div id="powered"><img alt="Powered by Timbuctoo" src="{$home_path}img/powered.png"></div>

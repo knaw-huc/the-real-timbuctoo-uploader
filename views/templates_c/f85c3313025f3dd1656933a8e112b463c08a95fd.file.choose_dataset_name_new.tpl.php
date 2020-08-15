@@ -1,4 +1,4 @@
-<?php /* Smarty version Smarty-3.1.14, created on 2020-08-09 22:22:15
+<?php /* Smarty version Smarty-3.1.14, created on 2020-08-14 16:15:57
          compiled from "/Library/WebServer/Documents/timbuctoo_uploader/views/templates/choose_dataset_name_new.tpl" */ ?>
 <?php /*%%SmartyHeaderCode:18560453255f29b313c608f4-44067919%%*/if(!defined('SMARTY_DIR')) exit('no direct access allowed');
 $_valid = $_smarty_tpl->decodeProperties(array (
@@ -7,7 +7,7 @@ $_valid = $_smarty_tpl->decodeProperties(array (
     'f85c3313025f3dd1656933a8e112b463c08a95fd' => 
     array (
       0 => '/Library/WebServer/Documents/timbuctoo_uploader/views/templates/choose_dataset_name_new.tpl',
-      1 => 1597002430,
+      1 => 1597414516,
       2 => 'file',
     ),
   ),
@@ -32,7 +32,7 @@ index.php">
         <label>Step 3: Create new dataset</label>
         <input type="text" id="ds_name" name="ds" size="40"  placeholder="Only lowercase, digits and underscores allowed">
         <div id="nameError" class="errorMsg"></div>
-
+        <input type="button" value="Back" onclick="history.back()">&nbsp;
         <input id="submitBtn" type="button" value="Next" onclick="validateName()">
         <input type="hidden" id="hsid" name="hsid" value="<?php echo $_smarty_tpl->tpl_vars['hsid']->value;?>
 ">

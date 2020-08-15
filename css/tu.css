@@ -74,7 +74,7 @@ padding: 4px 8px;
 cursor: pointer;
 }
 
-#submitBtn {
+#submitBtn, input[type="button"] {
 margin-top: 30px;
 border: 2px solid #333333;
 color: #ffffff;
@@ -135,7 +135,13 @@ text-align: left;
 display: inline-block;
 }
 
-.fileStatusName, .progess {
+.fileStatusError {
+display: inline-block;
+margin: 8px 4px 0 0;
+color: #b00;
+}
+
+.fileStatusName, .progress {
 display: inline-block;
 margin: 8px 4px 0 0;
 }

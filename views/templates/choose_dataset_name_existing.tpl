@@ -5,6 +5,7 @@
 
         </select>
 <br/>
+        <input type="button" value="Back" onclick="history.back()">&nbsp;
         <input id="submitBtn" type="submit" value="Next">
         <input type="hidden" id="hsid" name="hsid" value="{$hsid}">
         <input type="hidden" id="repo" name="repo" value="{$repo}">
