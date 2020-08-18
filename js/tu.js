@@ -68,12 +68,15 @@ function validateFiles() {
 async function startSending(owner_id, files) {
     const url = resources[$("#repo").val()].url + "graphql";
     const dataset = $("#ds").val();
-    query = "query {dataSetMetadata(dataSetId: \"" + dataset + "\") {dataSetImportStatus {id status source progress {label status progress} errorObjects {dateStamp file method message error}}}}";
+    const hsid = $("#hsid").val();
+    query = 'query {dataSetMetadata(dataSetId: "' + dataset + '") {dataSetImportStatus {id status source progress {label status progress} errorObjects {dateStamp file method message error}}}}';
+    console.log(query);
     let response = await fetch(url, {
         method: "POST",
         body: JSON.stringify({"query": query}),
         headers: {
             authorization: hsid,
+            VRE_ID: dataset,
             'Content-Type': 'application/json'
         }
     });
@@ -109,12 +112,14 @@ function makePreparationsAndSend(json, owner_id, files) {
 async function check_process() {
     const url = resources[$("#repo").val()].url + "graphql";
     const dataset = $("#ds").val();
-    query = "query {dataSetMetadata(dataSetId: \"" + dataset + "\") {dataSetImportStatus {id status source progress {label status progress} errorObjects {dateStamp file method message error}}}}";
+    const hsid = $("#hsid").val();
+    query = 'query {dataSetMetadata(dataSetId: "' + dataset + '") {dataSetImportStatus {id status source progress {label status progress} errorObjects {dateStamp file method message error}}}}';
     let response = await fetch(url, {
         method: "POST",
         body: JSON.stringify({"query": query}),
         headers: {
             authorization: hsid,
+            VRE_ID: dataset,
             'Content-Type': 'application/json'
         }
     });
@@ -199,7 +204,8 @@ async function send_file(file, owner_id, datasetName) {
         method: 'POST',
         body: data,
         headers: {
-            authorization: hsid
+            authorization: hsid,
+            VRE_ID: owner_id + "__" + datasetName,
         }
     });
 
@@ -301,7 +307,7 @@ function validateName() {
         }
     }
     if (!error) {
-        create_dataset($("#ds_name").val());
+        create_dataset($("#ds_name").val(), $("#hsid").val());
     }
 }
 
@@ -357,7 +363,7 @@ async function timbuctoo_requests(url, query, hsid) {
     }
 }
 
-async function create_dataset(name) {
+async function create_dataset(name, hsid) {
     const query = "mutation {createDataSet(dataSetName: \"" + name + "\") {dataSetId dataSetName ownerId}}";
     console.log(JSON.stringify({"query": query}));
     let response = await fetch(resources[$("#repo").val()].url + "graphql", {
@@ -370,7 +376,6 @@ async function create_dataset(name) {
     });
     if (response.ok) {
         result = await response.json();
-        console.log(result);
         if (!result.data) {
             $("#nameError").html(result.errors[0].message);
         } else {
