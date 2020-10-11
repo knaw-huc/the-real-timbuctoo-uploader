@@ -1,4 +1,4 @@
-<?php /* Smarty version Smarty-3.1.14, created on 2020-08-15 14:48:55
+<?php /* Smarty version Smarty-3.1.14, created on 2020-10-11 17:18:39
          compiled from "/Library/WebServer/Documents/timbuctoo_uploader/views/templates/page.tpl" */ ?>
 <?php /*%%SmartyHeaderCode:13213272125f295a0bc18668-33529217%%*/if(!defined('SMARTY_DIR')) exit('no direct access allowed');
 $_valid = $_smarty_tpl->decodeProperties(array (
@@ -7,7 +7,7 @@ $_valid = $_smarty_tpl->decodeProperties(array (
     '170a71bd51d331370d5a48d87f1e51cf3971669f' => 
     array (
       0 => '/Library/WebServer/Documents/timbuctoo_uploader/views/templates/page.tpl',
-      1 => 1597495721,
+      1 => 1602429507,
       2 => 'file',
     ),
   ),
@@ -21,6 +21,7 @@ $_valid = $_smarty_tpl->decodeProperties(array (
   array (
     'home_path' => 0,
     'logged_in' => 0,
+    'repo' => 0,
     'content' => 0,
   ),
   'has_nocache_code' => false,
@@ -45,10 +46,9 @@ js/tu.js"></script>
     <?php }?>
 </head>
 <body>
-<div id="header"><a href="<?php echo $_smarty_tpl->tpl_vars['home_path']->value;?>
-"><img id="logo" alt="logo huygens ING" src="<?php echo $_smarty_tpl->tpl_vars['home_path']->value;?>
+<div id="header"><a href="#" onclick="goHome()"><img id="logo" alt="logo huygens ING" src="<?php echo $_smarty_tpl->tpl_vars['home_path']->value;?>
 img/huygens.png"></a>
-<div id="login"><?php if (!$_smarty_tpl->tpl_vars['logged_in']->value){?><div id="loginBtn" onclick="login()">Login</div><?php }?></div>
+<div id="login"><?php if (!$_smarty_tpl->tpl_vars['logged_in']->value){?><div id="loginBtn" onclick="login()">Login</div><?php }else{ ?><?php if (isset($_smarty_tpl->tpl_vars['repo']->value)){?><div id="loginBtn" onclick="myDatasets()">My datasets</div><?php }?><?php }?></div>
 </div>
 <div id="content">
     <?php echo $_smarty_tpl->tpl_vars['content']->value;?>
