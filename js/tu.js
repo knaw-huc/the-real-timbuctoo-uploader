@@ -99,7 +99,7 @@ async function startSending(owner_id, files) {
     }
 }
 
-function makePreparationsAndSend(json, owner_id, files) {
+async function makePreparationsAndSend(json, owner_id, files) {
     startStatusIndex = json.data.dataSetMetadata.dataSetImportStatus.length;
     for (var i = 0; i < files.length; i++) {
         const extension = files[i].name.split('.').slice(-1)[0];
@@ -107,13 +107,13 @@ function makePreparationsAndSend(json, owner_id, files) {
             fileType = files[i].name.split('.').slice(-2)[0];
             if (correct_mimetype(fileType)) {
                 createFileStatusLine(files[i]);
-                send_file(files[i], owner_id, $("#ds_name").val());
+                await send_file(files[i], owner_id, $("#ds_name").val());
             } else {
                 create_metadata('Rejected file', files[i].name);
             }
         } else {
             createFileStatusLine(files[i]);
-            send_file(files[i], owner_id, $("#ds_name").val());
+            await send_file(files[i], owner_id, $("#ds_name").val());
         }
     }
     check_process();
@@ -199,7 +199,7 @@ function createFileStatusLine(file) {
 
 async function send_file(file, owner_id, datasetName) {
     const mimeType = getMimeType(file);
-    const url = resources[$("#repo").val()].url + owner_id + "/" + datasetName + "/upload/rdf";
+    const url = resources[$("#repo").val()].url + owner_id + "/" + datasetName + "/upload/rdf?async=true";
     const hsid = $("#hsid").val();
     const data = new FormData();
     acceptedFiles++;
