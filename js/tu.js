@@ -1,5 +1,5 @@
 const login_server = 'https://secure.huygens.knaw.nl/saml2/login';
-const home = "https://www.huc.localhost/timbuctoo_uploader/";
+const home = "http://www.huc.localhost/timbuctoo_uploader/";
 //const home = "https://timporter.sd.di.huc.knaw.nl/";
 const resources = {
     loc: {url: "http://localhost:8080/v5/", name: "Local Timbuctoo"},
@@ -26,6 +26,7 @@ function init() {
         $("#uploadMetadata").removeClass("noView");
         create_metadata('Repository', resources[$("#repo").val()].name);
         whoAmI($("#hsid").val());
+        get_creds($("#hsid").val());
     }
     if ($("#actiontype").length) {
         create_metadata('Action', selectAction($("#actiontype").val()));
@@ -265,6 +266,22 @@ function login() {
     lform.append(field);
     document.getElementById('loginFormDiv').append(lform);
     document.getElementById('loginForm').submit();
+}
+
+function get_creds(hsid) {
+    console.log('OK');
+    $.ajax({
+        type: "GET",
+        url: "https://secure.huygens.knaw.nl/sessions/" + hsid,
+        crossDomain: true,
+        dataType: 'jsonp',
+        success: function (json) {
+            console.log(json);
+        },
+        error: function (err) {
+            console.log(err);
+        }
+    });
 }
 
 function create_metadata(label, value) {
