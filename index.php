@@ -26,6 +26,13 @@ if (isset($_GET["hsid"]))
                             home();
                         }
                         break;
+                    case "show_status":
+                        if (isset($_GET["dataset_id"])) {
+                            show_dataset_status($_GET["hsid"], $_GET["repo"], $_GET["actiontype"], $_GET["dataset_id"]);
+                        } else {
+                            home();
+                        }
+                        break;
                     case "edit_metadata":
                         edit_metadata($_GET["hsid"], $_GET["repo"], $_GET["actiontype"], $_GET["dataset_id"]);
                         break;
